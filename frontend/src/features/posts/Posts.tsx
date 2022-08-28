@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useAppSelector } from "../../app/hooks";
-import { fetchPostsAsync, PostState, selectPosts, selectStatus, Statuses } from './postSlice';
+import { fetchPostsAsync, PostState, selectPosts, selectStatus, Statuses, updatePostAsync } from './postSlice';
 import Post from './Post'
 import PostForm from './PostForm'
 
@@ -11,9 +11,24 @@ function Posts() {
     const status = useAppSelector(selectStatus);
     const dispatch = useDispatch();
 
+    const [postToEdit, setPostToEdit] = useState(0);
+
     useEffect(() => {
         dispatch(fetchPostsAsync());
     }, [dispatch])
+
+    function toggleEditForm(post_id?:number) {
+      if (postToEdit === post_id) {
+        setPostToEdit(0);
+      } else {
+        setPostToEdit(post_id as number);
+      }
+    }
+
+    function submitEdit(formData:any) {
+      dispatch(updatePostAsync(formData));
+      toggleEditForm();
+    }
 
     let contents;
 
@@ -29,6 +44,9 @@ function Posts() {
                         <Post
                           dispatch={dispatch}
                           post={post}
+                          toggleEditForm={() => toggleEditForm(post.id)}
+                          postToEdit={postToEdit}
+                          submitEdit={submitEdit}
                         />
                     </div>
                 })}
